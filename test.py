@@ -10,6 +10,7 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(True, val)  # add assertion here
 
     def test_something_else(self):
+        ruta = 'C:\Users\kevin\OneDrive\Escritorio\uno.xls';
         uno = pd.read_excel('C:\\Users\\kevin\\OneDrive\\Escritorio\\uno.xls', sheet_name='Contactos')
 
         uno.drop_duplicates(subset=['Email','ID'], inplace=True)

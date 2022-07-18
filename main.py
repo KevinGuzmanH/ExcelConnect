@@ -1,4 +1,11 @@
 import pandas as pd
+from argparse import ArgumentParser
+
+parser = ArgumentParser()
+parser.add_argument("-o", "--old", dest="oldpath",
+                    help="Where is the old csv file")
+
+args = parser.parse_args()
 
 if __name__ == '__main__':
 
@@ -48,7 +55,10 @@ if __name__ == '__main__':
                 usersPhones.pop(checkIDPositionInPhones(user.ID))
 
     # Read the excel file to use
-    oldEx = pd.read_excel('C:\\Users\\kevin\\OneDrive\\Escritorio\\uno.xls', sheet_name='Contactos')
+    PATH = args.oldpath
+    SHEET = 'Contactos'
+
+    oldEx = pd.read_excel(PATH, sheet_name=SHEET)
 
     # get the ids, emails and phones without repetitions
     idList = oldEx['ID'].unique().tolist()
@@ -103,6 +113,6 @@ if __name__ == '__main__':
             aux += 1
 
     # save the new dataframe to a csv file
-    newEx.to_csv('C:\\Users\\kevin\\PycharmProjects\\EmailAnalyse\\newFile.csv', index=False, encoding="latin1")
+    newEx.to_csv('newF.csv', index=False, encoding="latin1")
 
-    print('Listo')
+    print('Done!')
