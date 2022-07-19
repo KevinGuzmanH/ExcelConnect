@@ -74,6 +74,7 @@ python.exe .\main.py -f C:\Users\kevin\OneDrive\Escritorio\uno.xls -i ID -p Phon
  
 When the file is processed you will see Done! in console
 
+Make sure to close the new file before you run the program again
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
