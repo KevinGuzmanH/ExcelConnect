@@ -2,14 +2,23 @@ import pandas as pd
 from argparse import ArgumentParser
 
 parser = ArgumentParser()
-parser.add_argument("-o", "--old", dest="oldpath",
+parser.add_argument("-f", "--file", dest="filepath",
                     help="Where is the old csv file")
+
+parser.add_argument("-i", "--id", dest="idcolumn",
+                    help="The name of the column with the ID's")
+
+parser.add_argument("-p", "--phone", dest="phonecolumn",
+                    help="The name of the column with the phone numbers")
+
+parser.add_argument("-e", "--email", dest="emailcolumn",
+                    help="The name of the column with the email addresses")
 
 args = parser.parse_args()
 
 if __name__ == '__main__':
 
-    class User():
+    class UserInfo():
         def __init__(self, ID, Field, FieldCount):
             self.ID = ID
             self.Field = Field
@@ -55,27 +64,30 @@ if __name__ == '__main__':
                 usersPhones.pop(checkIDPositionInPhones(user.ID))
 
     # Read the excel file to use
-    PATH = args.oldpath
+    PATH = args.filepath
+    IDCOLUMN = args.idcolumn
+    PHONECOLUMN = args.phonecolumn
+    EMAILCOLUMN = args.emailcolumn
     SHEET = 'Contactos'
 
     oldEx = pd.read_excel(PATH, sheet_name=SHEET)
 
     # get the ids, emails and phones without repetitions
-    idList = oldEx['ID'].unique().tolist()
-    emailList = oldEx['Email'].unique().tolist()
-    phoneList = oldEx['Teléfono'].unique().tolist()
+    idList = oldEx[IDCOLUMN].unique().tolist()
+    emailList = oldEx[EMAILCOLUMN].unique().tolist()
+    phoneList = oldEx[PHONECOLUMN].unique().tolist()
 
     # add emails to the email list
     for id in idList:
         for email in emailList:
-            if email in oldEx[oldEx['ID'] == id]['Email'].values:
-                usersMails.insert(0, User(id, email, oldEx[oldEx['ID'] == id]['Email'].value_counts()[email]))
+            if email in oldEx[oldEx[IDCOLUMN] == id][EMAILCOLUMN].values:
+                usersMails.insert(0, UserInfo(id, email, oldEx[oldEx[IDCOLUMN] == id][EMAILCOLUMN].value_counts()[email]))
 
     # add phones to the phones list
     for id in idList:
         for phone in phoneList:
-            if phone in oldEx[oldEx['ID'] == id]['Teléfono'].values:
-                usersPhones.insert(0, User(id, phone, oldEx[oldEx['ID'] == id]['Teléfono'].value_counts()[phone]))
+            if phone in oldEx[oldEx[IDCOLUMN] == id][PHONECOLUMN].values:
+                usersPhones.insert(0, UserInfo(id, phone, oldEx[oldEx[IDCOLUMN] == id][PHONECOLUMN].value_counts()[phone]))
 
     # organize the emails and phones lists by least repetitions to delete the least repeated
     usersMails.sort(key=lambda x: x.FieldCount, reverse=False)
@@ -86,12 +98,12 @@ if __name__ == '__main__':
     clearMoreThanThreePhonesByUser()
 
     # remove the emails and phones columns from the oldEx dataframe
-    oldEx.drop(columns=['Email'], inplace=True)
-    oldEx.drop(columns=['Teléfono'], inplace=True)
+    oldEx.drop(columns=[EMAILCOLUMN], inplace=True)
+    oldEx.drop(columns=[PHONECOLUMN], inplace=True)
 
     # create a new dataframe with the same columns and rows as the new dataframe without ID repetitions
     newEx = pd.DataFrame(oldEx)
-    newEx.drop_duplicates(subset=['ID'], inplace=True)
+    newEx.drop_duplicates(subset=[IDCOLUMN], inplace=True)
 
     # organize the emails and phones lists by highest repetitions to take first the most repeated
     usersMails.sort(key=lambda x: x.FieldCount, reverse=True)
@@ -101,14 +113,14 @@ if __name__ == '__main__':
     for id in idList:
         aux = 1;
         while checkIDPositionInMails(id) != -1:
-            newEx.loc[newEx['ID'] == id, 'Email_' + str(aux)] = usersMails[checkIDPositionInMails(id)].Field
+            newEx.loc[newEx[IDCOLUMN] == id, 'Email_' + str(aux)] = usersMails[checkIDPositionInMails(id)].Field
             usersMails.pop(checkIDPositionInMails(id))
             aux += 1
 
     for id in idList:
         aux = 1;
         while checkIDPositionInPhones(id) != -1:
-            newEx.loc[newEx['ID'] == id, 'Teléfono_' + str(aux)] = usersPhones[checkIDPositionInPhones(id)].Field
+            newEx.loc[newEx[IDCOLUMN] == id, 'Teléfono_' + str(aux)] = usersPhones[checkIDPositionInPhones(id)].Field
             usersPhones.pop(checkIDPositionInPhones(id))
             aux += 1
 
