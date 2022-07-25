@@ -3,7 +3,7 @@ from argparse import ArgumentParser
 
 parser = ArgumentParser()
 parser.add_argument("-f", "--file", dest="filepath",
-                    help="Where is the old csv file")
+                    help="Where is the old excel file")
 
 parser.add_argument("-i", "--id", dest="idcolumn",
                     help="The name of the column with the ID's")
@@ -22,49 +22,57 @@ args = parser.parse_args()
 if __name__ == '__main__':
 
     class UserInfo():
-        def __init__(self, ID, Field, FieldCount):
-            self.ID = ID
-            self.Field = Field
-            self.FieldCount = FieldCount
+        def __init__(self, id, field, fieldcount):
+            self.id = id
+            self.field = field
+            self.fieldcount = fieldcount
+
 
     usersMails = []
     usersPhones = []
 
-    def countEmails(ID):
+
+    def countEmails(id):
         emailcount = 0
         for user in usersMails:
-            if user.ID == ID:
+            if user.id == id:
                 emailcount += 1
         return emailcount
 
-    def countPhones(ID):
+
+    def countPhones(id):
         phonecount = 0
         for user in usersPhones:
-            if user.ID == ID:
+            if user.id == id:
                 phonecount += 1
         return phonecount
 
-    def checkIDPositionInMails(ID):
+
+    def checkIDPositionInMails(id):
         for i in range(len(usersMails)):
-            if usersMails[i].ID == ID:
+            if usersMails[i].id == id:
                 return i
         return -1
 
-    def checkIDPositionInPhones(ID):
+
+    def checkIDPositionInPhones(id):
         for i in range(len(usersPhones)):
-            if usersPhones[i].ID == ID:
+            if usersPhones[i].id == id:
                 return i
         return -1
+
 
     def clearMoreThanThreeEmailsByUser():
         for user in usersMails:
-            while countEmails(user.ID) > 3:
-                usersMails.pop(checkIDPositionInMails(user.ID))
+            while countEmails(user.id) > 3:
+                usersMails.pop(checkIDPositionInMails(user.id))
+
 
     def clearMoreThanThreePhonesByUser():
         for user in usersPhones:
-            while countPhones(user.ID) > 3:
-                usersPhones.pop(checkIDPositionInPhones(user.ID))
+            while countPhones(user.id) > 3:
+                usersPhones.pop(checkIDPositionInPhones(user.id))
+
 
     # Read the excel file to use
     PATH = args.filepath
@@ -84,17 +92,19 @@ if __name__ == '__main__':
     for id in idList:
         for email in emailList:
             if email in oldEx[oldEx[IDCOLUMN] == id][EMAILCOLUMN].values:
-                usersMails.insert(0, UserInfo(id, email, oldEx[oldEx[IDCOLUMN] == id][EMAILCOLUMN].value_counts()[email]))
+                usersMails.insert(0,
+                                  UserInfo(id, email, oldEx[oldEx[IDCOLUMN] == id][EMAILCOLUMN].value_counts()[email]))
 
     # add phones to the phones list
     for id in idList:
         for phone in phoneList:
             if phone in oldEx[oldEx[IDCOLUMN] == id][PHONECOLUMN].values:
-                usersPhones.insert(0, UserInfo(id, phone, oldEx[oldEx[IDCOLUMN] == id][PHONECOLUMN].value_counts()[phone]))
+                usersPhones.insert(0,
+                                   UserInfo(id, phone, oldEx[oldEx[IDCOLUMN] == id][PHONECOLUMN].value_counts()[phone]))
 
     # organize the emails and phones lists by least repetitions to delete the least repeated
-    usersMails.sort(key=lambda x: x.FieldCount, reverse=False)
-    usersPhones.sort(key=lambda x: x.FieldCount, reverse=False)
+    usersMails.sort(key=lambda x: x.fieldcount, reverse=False)
+    usersPhones.sort(key=lambda x: x.fieldcount, reverse=False)
 
     # remove emails and phones with more than three repetitions
     clearMoreThanThreeEmailsByUser()
@@ -109,25 +119,27 @@ if __name__ == '__main__':
     newEx.drop_duplicates(subset=[IDCOLUMN], inplace=True)
 
     # organize the emails and phones lists by highest repetitions to take first the most repeated
-    usersMails.sort(key=lambda x: x.FieldCount, reverse=True)
-    usersPhones.sort(key=lambda x: x.FieldCount, reverse=True)
+    usersMails.sort(key=lambda x: x.fieldcount, reverse=True)
+    usersPhones.sort(key=lambda x: x.fieldcount, reverse=True)
 
     # add the emails and phones columns to the new dataframe
     for id in idList:
         aux = 1;
         while checkIDPositionInMails(id) != -1:
-            newEx.loc[newEx[IDCOLUMN] == id, 'Email_' + str(aux)] = usersMails[checkIDPositionInMails(id)].Field
+            newEx.loc[newEx[IDCOLUMN] == id, 'Email_' + str(aux)] = usersMails[checkIDPositionInMails(id)].field
             usersMails.pop(checkIDPositionInMails(id))
             aux += 1
 
     for id in idList:
         aux = 1;
         while checkIDPositionInPhones(id) != -1:
-            newEx.loc[newEx[IDCOLUMN] == id, 'Teléfono_' + str(aux)] = usersPhones[checkIDPositionInPhones(id)].Field
+            newEx.loc[newEx[IDCOLUMN] == id, 'Teléfono_' + str(aux)] = usersPhones[checkIDPositionInPhones(id)].field
             usersPhones.pop(checkIDPositionInPhones(id))
             aux += 1
 
     # save the new dataframe to a csv file
-    newEx.to_csv('newF.csv', index=False, encoding="latin1")
-
-    print('Done!')
+    try:
+        newEx.to_csv('newF.csv', index=False, encoding="latin1")
+        print('Done!')
+    except PermissionError:
+        print('Error: The file is open, please close it and try again')
