@@ -14,6 +14,9 @@ parser.add_argument("-p", "--phone", dest="phonecolumn",
 parser.add_argument("-e", "--email", dest="emailcolumn",
                     help="The name of the column with the email addresses")
 
+parser.add_argument("-s", "--sheet", dest="sheetname",
+                    help="The name of the sheet in the excel file")
+
 args = parser.parse_args()
 
 if __name__ == '__main__':
@@ -68,7 +71,7 @@ if __name__ == '__main__':
     IDCOLUMN = args.idcolumn
     PHONECOLUMN = args.phonecolumn
     EMAILCOLUMN = args.emailcolumn
-    SHEET = 'Contactos'
+    SHEET = args.sheetname
 
     oldEx = pd.read_excel(PATH, sheet_name=SHEET)
 

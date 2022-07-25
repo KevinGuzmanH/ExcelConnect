@@ -57,19 +57,20 @@ This project was developed using Anaconda 4.12.0
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-
-<!-- USAGE EXAMPLES -->
 ## Usage
 ### Arguments
 * `-f`: Input file path
 * `-i`: ID name column
 * `-p`: Phone name column
 * `-e`: Email name column
+* `-s`: The name of the sheet in the excel file
 
 ### Example
 
+<!-- USAGE EXAMPLE -->
+
  ```sh
-python.exe .\main.py -f C:\Users\kevin\OneDrive\Escritorio\uno.xls -i ID -p Phone -e Email 
+python.exe .\main.py -f C:\Users\kevin\OneDrive\Escritorio\uno.xls -i ID -p Phone -e Email -s Contactos
  ```
  
 When the file is processed you will see Done! in console
