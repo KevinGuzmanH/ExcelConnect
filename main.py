@@ -90,17 +90,19 @@ if __name__ == '__main__':
 
     # add emails to the email list
     for id in idList:
+        emailsForThisID = oldEx[oldEx[IDCOLUMN] == id][EMAILCOLUMN]
         for email in emailList:
-            if email in oldEx[oldEx[IDCOLUMN] == id][EMAILCOLUMN].values:
+            if email in emailsForThisID.values:
                 usersMails.insert(0,
-                                  UserInfo(id, email, oldEx[oldEx[IDCOLUMN] == id][EMAILCOLUMN].value_counts()[email]))
+                                  UserInfo(id, email, emailsForThisID.value_counts()[email]))
 
     # add phones to the phones list
     for id in idList:
+        phonesForThisID = oldEx[oldEx[IDCOLUMN] == id][PHONECOLUMN]
         for phone in phoneList:
-            if phone in oldEx[oldEx[IDCOLUMN] == id][PHONECOLUMN].values:
+            if phone in phonesForThisID.values:
                 usersPhones.insert(0,
-                                   UserInfo(id, phone, oldEx[oldEx[IDCOLUMN] == id][PHONECOLUMN].value_counts()[phone]))
+                                   UserInfo(id, phone, phonesForThisID.value_counts()[phone]))
 
     # organize the emails and phones lists by least repetitions to delete the least repeated
     usersMails.sort(key=lambda x: x.fieldcount, reverse=False)
