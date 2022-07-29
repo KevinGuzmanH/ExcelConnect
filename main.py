@@ -89,7 +89,7 @@ if __name__ == '__main__':
     phoneList = oldEx[PHONECOLUMN].unique().tolist()
 
     # add emails to the email list
-    for id in idList:
+    for id in tqdm(idList):
         emailsForThisID = oldEx[oldEx[IDCOLUMN] == id][EMAILCOLUMN]
         for email in emailList:
             if email in emailsForThisID.values:
@@ -97,7 +97,7 @@ if __name__ == '__main__':
                                   UserInfo(id, email, emailsForThisID.value_counts()[email]))
 
     # add phones to the phones list
-    for id in idList:
+    for id in tqdm(idList):
         phonesForThisID = oldEx[oldEx[IDCOLUMN] == id][PHONECOLUMN]
         for phone in phoneList:
             if phone in phonesForThisID.values:
