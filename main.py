@@ -1,5 +1,7 @@
+import numpy as np
 import pandas as pd
 from argparse import ArgumentParser
+from tqdm import tqdm
 
 parser = ArgumentParser()
 parser.add_argument("-f", "--file", dest="filepath",
@@ -27,10 +29,8 @@ if __name__ == '__main__':
             self.field = field
             self.fieldcount = fieldcount
 
-
     usersMails = []
     usersPhones = []
-
 
     def countEmails(id):
         emailcount = 0
@@ -137,9 +137,18 @@ if __name__ == '__main__':
             usersPhones.pop(checkIDPositionInPhones(id))
             aux += 1
 
+
     # save the new dataframe to a csv file
     try:
-        newEx.to_csv('newF.csv', index=False, encoding="latin1")
+        print("Saving the new csv file...")
+        chunks = np.array_split(newEx.index, 100)  # chunks of 100 rows
+
+        for chunck, subset in enumerate(tqdm(chunks)):
+            if chunck == 0:  # first row
+                newEx.loc[subset].to_csv('data.csv', mode='w', index=False, encoding="latin1")
+            else:
+                newEx.loc[subset].to_csv('data.csv', header=None, mode='a', index=False, encoding="latin1")
+
         print('Done!')
     except PermissionError:
         print('Error: The file is open, please close it and try again')
